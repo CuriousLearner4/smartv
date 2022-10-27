@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block header %}
+ <h1>{% block title %}Welcome to smart vending machine{%endblock%}</h1>
+{% endblock %}
+ 
+ {% block content %}
+ 	<form method = "POST">
+ 		<p><label for="Qty">Enter quantity required:<input type ="number" id="Qty" name="Qty" min="1" max="10" required></label></p>
+ 		<p><label for="Mode">Select payment method: 
+ 				<select name = "Mode" required>
+ 					<option value = "qr">QR Code</option>
+ 					<option value = "rfid">ID card</option>
+ 					<option value = "coin">Coins</option>
+ 				</select>
+ 			</label>
+ 		</p>
+ 		<p><button type="submit">Next</button></p>
+ 	</form>
+ {% endblock %}
+ 
