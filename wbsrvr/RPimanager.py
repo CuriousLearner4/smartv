@@ -1,8 +1,10 @@
 import time
 import multitasking
 import serial
-#import RPi.GPIO as GPIO
-#from mfrc522 import SimpleMFRC522
+import RPi.GPIO as GPIO
+
+from wbsrvr.service import dispensing
+# from mfrc522 import SimpleMFRC522
 
 class RPiManager():
     def __init__(self):
@@ -42,20 +44,25 @@ class RPiManager():
         ser.reset_input_buffer()
         now = time.time()
         payable = int(self.quantity)*self.unitprice
-        while time.time()-now < 30:
+        while time.time()-now < 60:
             number = ser.readline()
             if number != b'':
                 coin_amount = int.from_bytes(number, byteorder='big')
                 self.payablecoinamount += coin_amount
+                if self.payablecoinamount == payable:
+                    self.dispenseflag = True
+                    break
+        if self.dispenseflag == None:
+            self.dispenseflag = False
+        
             
     def rfid_payment(self):
-        #reader = SimpleMFRC522()
+        # reader = SimpleMFRC522()
         try:
             flag = False
             now = time.time()
             while (time.time() - now) < 30:
                 # id, text = reader.read()
-                self.user = 'harsha'
                 if self.user != None:
                     flag = True
                     payable = int(self.quantity)*self.unitprice
@@ -69,33 +76,26 @@ class RPiManager():
                 self.message = "Hello"+str(self.user)+"!!! You have low credits.Try again after TOPUP of card"
                 self.dispenseflag = False
         finally:
-            pass
-            #GPIO.cleanup()
-    
-    def qr_payment():
-        pass
+            GPIO.cleanup()
 
     @multitasking.task
     def pad_dispenser(self):
-        # durationofrotation = 0.16666
-        # GPIO.setmode(GPIO.BCM)
-        # GPIO.setup(22,GPIO.OUT)
-        # GPIO.setup(23,GPIO.OUT)
-        # GPIO.setup(24,GPIO.OUT)
-        # p = GPIO.PWM(24,1023)
-        # try: 
-        #     GPIO.output(22,GPIO.HIGH)
-        #     GPIO.output(23,GPIO.LOW)
-        #     p.start(100)
-        #     time.sleep(self.quantity*durationofrotation)
-        #     p.stop
-        #     self.dispensestatus = "done"
-        # except:
-        #     self.message = "Something went wrong please contact admin"
-        #     self.dispensestatus = "failed"
-        # finally:
-        #     GPIO.cleanup()
-        print('inmotor')
-        time.sleep(10)
-        self.dispensestatus = 'done'
+        durationofrotation = 0.16666
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(22,GPIO.OUT)
+        GPIO.setup(23,GPIO.OUT)
+        GPIO.setup(24,GPIO.OUT)
+        p = GPIO.PWM(24,1023)
+        try: 
+            GPIO.output(22,GPIO.HIGH)
+            GPIO.output(23,GPIO.LOW)
+            p.start(100)
+            time.sleep(self.quantity*durationofrotation)
+            p.stop
+            self.dispensestatus = "done"
+        except:
+            self.message = "Something went wrong please contact admin"
+            self.dispensestatus = "failed"
+        finally:
+            GPIO.cleanup()
         

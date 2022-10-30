@@ -33,12 +33,19 @@ def payrfid():
 		if manager.dispenseflag == True:
 			manager.pad_dispenser()
 			return redirect(url_for("service.dispensing"))
-
-		if manager.dispenseflag == False:
+		elif manager.dispenseflag == False:
 			return redirect(url_for("service.req"))
 
 	return render_template('payment/rfid.html',name = manager.message, state = manager.dispenseflag)
-
+	
+@bp.route('/coin')
+def coin():
+	if manager.dispenseflag == True:
+		manager.pad_dispenser()
+		return redirect(url_for("service.dispensing"))
+	elif manager.dispenseflag == False:
+		return redirect(url_for("service.cfail"))
+	 
 @bp.route('/dispensing')
 def dispensing():
 	if manager.dispensestatus == 'done':
