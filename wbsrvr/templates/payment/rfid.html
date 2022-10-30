@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block header %} 
+<h1>{{ name }}</h1>
+{% endblock %}
+{% block content %}
+  <form method="POST">
+    {% if state == True %}
+    <p>do you want to proceed?</p>
+    {% else %}
+    <p>you will be redirected back</p>
+    {% endif %}
+    <input type="submit" value="Proceed">
+
+  </form>
+{% endblock %}

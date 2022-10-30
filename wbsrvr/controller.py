@@ -5,6 +5,7 @@ import multitasking
 class control():
     def __init__(self):
         self.status = None
+        self.customer = None
     @multitasking.task
     def paychk(self,mode):
         if mode == 'coin':
