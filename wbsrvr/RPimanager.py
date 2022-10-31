@@ -1,9 +1,7 @@
 import time
 import multitasking
 import serial
-import RPi.GPIO as GPIO
-
-from wbsrvr.service import dispensing
+#import RPi.GPIO as GPIO
 # from mfrc522 import SimpleMFRC522
 
 class RPiManager():
@@ -14,6 +12,7 @@ class RPiManager():
         self.mode = None
         self.quantity = 0
         self.unitprice = 5
+        self.idcarddetected = None
         self.payablecoinamount = 0
         self.samplecredits = 25
         self.message = None
@@ -22,6 +21,7 @@ class RPiManager():
     def clean_up(self):
         self.user = None
         self.dispensestatus = None
+        self.idcarddetected = None
         self.samplecredits = 25
         self.message1 = None
         self.mode = None
@@ -55,47 +55,56 @@ class RPiManager():
         if self.dispenseflag == None:
             self.dispenseflag = False
         
-            
+    @multitasking.task        
     def rfid_payment(self):
         # reader = SimpleMFRC522()
         try:
             flag = False
             now = time.time()
-            while (time.time() - now) < 30:
+            while (time.time() - now) < 10:
                 # id, text = reader.read()
+                if (time.time()-now) > 3:
+                    self.user = "Harsha"
                 if self.user != None:
                     flag = True
+                    self.idcarddetected = True
                     payable = int(self.quantity)*self.unitprice
-                    break 
-            if flag and self.samplecredits > payable:
+                    break
+            if flag == False:
+                self.idcarddetected = False
+                self.message = "Card not detected!pleasee try again"
+            if (flag == True) and (self.samplecredits > payable):
                 self.samplecredits = self.samplecredits - payable
                 self.message = "Hello"+str(self.user)+"!!! Payable: " + str(payable)
                 self.message1 = "Your new credits are: " + str(self.samplecredits)
                 self.dispenseflag = True
-            elif flag and self.samplecredits < payable:
+            elif (flag == True) and (self.samplecredits < payable):
                 self.message = "Hello"+str(self.user)+"!!! You have low credits.Try again after TOPUP of card"
                 self.dispenseflag = False
         finally:
-            GPIO.cleanup()
+            pass
+            # GPIO.cleanup()
 
     @multitasking.task
     def pad_dispenser(self):
         durationofrotation = 0.16666
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(22,GPIO.OUT)
-        GPIO.setup(23,GPIO.OUT)
-        GPIO.setup(24,GPIO.OUT)
-        p = GPIO.PWM(24,1023)
-        try: 
-            GPIO.output(22,GPIO.HIGH)
-            GPIO.output(23,GPIO.LOW)
-            p.start(100)
-            time.sleep(self.quantity*durationofrotation)
-            p.stop
-            self.dispensestatus = "done"
-        except:
-            self.message = "Something went wrong please contact admin"
-            self.dispensestatus = "failed"
-        finally:
-            GPIO.cleanup()
+        # GPIO.setmode(GPIO.BCM)
+        # GPIO.setup(22,GPIO.OUT)
+        # GPIO.setup(23,GPIO.OUT)
+        # GPIO.setup(24,GPIO.OUT)
+        # p = GPIO.PWM(24,1023)
+        # try: 
+        #     GPIO.output(22,GPIO.HIGH)
+        #     GPIO.output(23,GPIO.LOW)
+        #     p.start(100)
+        #     time.sleep(self.quantity*durationofrotation)
+        #     p.stop
+        #     self.dispensestatus = "done"
+        # except:
+        #     self.message = "Something went wrong please contact admin"
+        #     self.dispensestatus = "failed"
+        # finally:
+        #     GPIO.cleanup()
+        time.sleep(10)
+        self.dispensestatus = 'done'
         

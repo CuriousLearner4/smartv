@@ -14,6 +14,7 @@ msg = 'hero'
 #Getting info of user requirement
 @bp.route('/req', methods = ('GET', 'POST'))
 def req():
+	manager.clean_up()
 	if request.method == 'POST':
 		manager.quantity = request.form['Qty']
 		manager.mode = request.form['Mode']
@@ -36,7 +37,7 @@ def payrfid():
 		elif manager.dispenseflag == False:
 			return redirect(url_for("service.req"))
 
-	return render_template('payment/rfid.html',name = manager.message, state = manager.dispenseflag)
+	return render_template('payment/rfid.html',name = manager.message, state1 = manager.idcarddetected, state = manager.dispenseflag)
 	
 @bp.route('/coin')
 def coin():
@@ -66,10 +67,8 @@ def process():
 
 @bp.route('/done')
 def done():
-	manager.clean_up()
 	return render_template('payment/done.html')
 
 @bp.route('/cfail')
 def cfail():
-	manager.clean_up()
 	return render_template('payment/cfail.html')

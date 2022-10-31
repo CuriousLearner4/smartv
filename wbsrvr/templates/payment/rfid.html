@@ -1,15 +1,31 @@
 {% extends 'base.html' %}
-{% block header %} 
-<h1>{{ name }}</h1>
-{% endblock %}
-{% block content %}
-  <form method="POST">
-    {% if state == True %}
-    <p>do you want to proceed?</p>
-    {% else %}
-    <p>you will be redirected back</p>
-    {% endif %}
-    <input type="submit" value="Proceed">
 
-  </form>
-{% endblock %}
+{% block header %}
+{% if state1 == None %} 
+<head>
+  <title>Processing</title>
+  <meta http-equiv = "refresh" content = "0.5" />
+</head>
+<body>
+  <h1>Place the card</h1>
+</body>
+{% elif state1 == False%}
+  <head>
+   <title>Payment Failed</title>
+    <meta http-equiv = "refresh" content = "5; url = http://127.0.0.1:5000/service/req" />
+  </head>
+  <body>
+    <h1>{{ name }}</h1>
+  </body>
+  {% elif state1 == True %}
+    <form method="POST">
+    <h1>{{ name }}</h1>
+    {% if state == True %}
+      <p>do you want to proceed?</p>
+    {% else %}
+      <p>you will be redirected back</p>
+    {% endif %}
+      <input type="submit" value="Proceed">
+    </form>
+  {% endif %}
+  {% endblock %}
